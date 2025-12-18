@@ -44,8 +44,3 @@ async def remove_background(file: UploadFile = File(...)):
         return StreamingResponse(io.BytesIO(output_image), media_type="image/png")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error processing image: {str(e)}")
-
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
