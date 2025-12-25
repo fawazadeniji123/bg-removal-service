@@ -2,6 +2,7 @@ import io
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.responses import StreamingResponse
+from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
 from rembg import remove
 
@@ -38,9 +39,12 @@ async def remove_background(file: UploadFile = File(...)):
 
         # 3. Process the image with rembg
         # Note: rembg handles bytes directly, making it very efficient
-        output_image = remove(input_image)
+        # Executing in a threadpool to avoid blocking the event loop
+        output_image = await run_in_threadpool(remove, input_image)
 
         # 4. Return as a streaming response
         return StreamingResponse(io.BytesIO(output_image), media_type="image/png")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error processing image: {str(e)}")
+
+
